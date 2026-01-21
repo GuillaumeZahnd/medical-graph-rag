@@ -12,7 +12,6 @@ class Dataset:
         """
         Populates the PDF collection with physical paths and graph metadata.
         """
-
         root_path = Path(self.dataset_path)
         root_name = root_path.name
 
@@ -34,15 +33,22 @@ class Dataset:
         """
         Return the PDF collection.
         """
-
         return self._pdf_collection
+
+
+    @property
+    def pdf_count(self) -> int:
+        """
+        Return the number of PDFs in the collection.
+        """
+        return len(self._pdf_collection)
 
 
     def display_collection(self) -> None:
         """
         Display the PDF collection.
         """
-
+        print(f"NUMBER OF DOCUMENTS: {len(self._pdf_collection)}")
         print(f"{'FILENAME':<60} | {'GRAPH HIERARCHY'}")
         print("-" * 100)
         for item in self._pdf_collection:
