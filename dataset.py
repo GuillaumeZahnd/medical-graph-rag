@@ -10,23 +10,31 @@ class Dataset:
 
     def populate_collection(self) -> None:
         """
-        Populate the PDF collection by constructing a list of tuples (full_path, file_name).
+        Populates the PDF collection with physical paths and graph metadata.
         """
 
         root_path = Path(self.dataset_path)
+        root_name = root_path.name
 
         for child in root_path.rglob("*"):
             if child.is_file() and child.suffix.lower() == ".pdf":
                 relative_parent = child.parent.relative_to(root_path)
-                full_path = root_path / relative_parent
-                self._pdf_collection.append((full_path.as_posix(), child.name))
+                hierarchy = (Path(root_name) / relative_parent).as_posix()
+                absolute_path = str(child.absolute())
+                full_path = Path(root_name) / relative_parent
+                self._pdf_collection.append({
+                    "absolute_path": absolute_path,
+                    "hierarchy": hierarchy,
+                    "file_name": child.name
+                })
 
 
     @property
-    def pdf_collection() -> list:
+    def pdf_collection(self) -> list[dict]:
         """
         Return the PDF collection.
         """
+
         return self._pdf_collection
 
 
@@ -34,5 +42,8 @@ class Dataset:
         """
         Display the PDF collection.
         """
-        for folder, file in self._pdf_collection:
-            print(f"{file:60} | {folder}")
+
+        print(f"{'FILENAME':<60} | {'GRAPH HIERARCHY'}")
+        print("-" * 100)
+        for item in self._pdf_collection:
+            print(f"{item['file_name']:<60} | {item['hierarchy']}")
