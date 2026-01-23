@@ -1,45 +1,45 @@
 name,type
-Quadruple thérapie à base de bismuth,Treatment Regimen
+Quadruple thérapie à base de bismuth,Drug
 Pylera,Drug
 Sous-citrate de bismuth,Drug
 Métronidazole,Drug
 Tétracycline,Drug
 Oméprazole,Drug
-Diarrhée,Disease
-Dysgueusie,Disease
-Effet antabuse,Adverse Effect
-Insuffisance hépatique,Disease
-Insuffisance rénale,Disease
-Traitement concomitant,Treatment Regimen
 Amoxicilline,Drug
 Clarithromycine,Drug
-Inhibiteurs de la pompe à protons,Drug Class
-Esoméprazole,Drug
+Inhibiteur de la pompe à protons,Drug
+Ésoméprazole,Drug
 Rabéprazole,Drug
 Test respiratoire à l'urée marquée au carbone 13,Test
+Méléna,Disease
+Diarrhée,Disease
+Dysgueusie,Disease
+Effet antabuse,Disease
+Insuffisance hépatique,Disease
+Insuffisance rénale,Disease
+Troubles digestifs,Disease
+Réactions cutanées,Disease
 Endoscopie digestive,Test
 Culture bactérienne,Test
 Réaction en chaîne par polymérase,Test
-Allergie à la pénicilline,Allergy
+Allergie à la pénicilline,Disease
 Ulcère gastroduodénal,Disease
 Anti-inflammatoires non stéroïdiens,Drug
 Dyspepsie fonctionnelle,Disease
-Endoscopie digestive haute,Test
-Cancer gastrique,Disease
-Résection locale d'un cancer gastrique,Procedure
+Cancer de l'estomac,Disease
 Syndrome de Lynch,Disease
-Lymphome du MALT gastrique,Disease
+Lymphome du tissu lymphoïde associé aux muqueuses gastrique,Disease
 Lésions muqueuses gastriques pré-néoplasiques,Disease
-Gastrite atrophique,Disease
-Métaplasie intestinale,Disease
+Atrophie gastrique,Disease
+Métaplasie gastrique,Disease
 Dysplasie gastrique,Disease
 Dérivation gastrique (by-pass gastrique),Procedure
 Carence martiale,Disease
 Carence en vitamine B12,Disease
 Purpura thrombopénique immunologique,Disease
+Infection à Helicobacter pylori,Disease
+Sérologie Helicobacter pylori,Test
+Gastroscopie,Test
 Biopsie gastrique,Test
-Atrophie gastrique sévère,Disease
-Sérologie *Helicobacter pylori*,Test
-Infection à *Helicobacter pylori*,Disease
-Antibiotique,Drug Class
-Adénocarcinome gastrique,Disease
+Antibiotique,Drug
+Cancer gastrique,Disease

@@ -37,9 +37,9 @@ class DocumentExtractor:
     ITALIC_CLEANUP_RE = re.compile(r'_([^_]+)_')
 
 
-
     def __init__(self, max_chunk_size: int) -> None:
         self.max_chunk_size = max_chunk_size
+
 
     def polish_markdown(self, text: str) -> str:
         """
