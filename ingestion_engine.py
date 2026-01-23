@@ -1,11 +1,14 @@
+import os
+import csv
+import json
 from enum import Enum
 from pydantic import BaseModel, Field
-import json
+
 
 
 class MedicalPredicate(Enum):
     """
-    These are the seven predicates that are necessary and sufficient to handle pairwise entity relationships.
+    These are the eight predicates that are necessary and sufficient to handle pairwise entity relationships.
     """
     REQUIRES_DIAGNOSTIC_TEST = "Pre-treatment investigation to confirm diagnosis."
     REQUIRES_MONITORING_TEST = "Safety/Efficacy checks required during active treatment."
@@ -14,6 +17,19 @@ class MedicalPredicate(Enum):
     INDICATED_FOR = "Specific condition a treatment is approved for."
     CONTRAINDICATED_WITH = "Conditions or drugs that prohibit treatment use."
     MANIFESTS_AS = "Clinical signs, symptoms, or phenotypic abnormalities."
+    DEMOGRAPHICS = "Patient populations, demographics, or age group."
+
+    @classmethod
+    def _missing_(cls, value):
+        """
+        Redirects Pydantic to look for the Enum name if the value is not found.
+        """
+        if isinstance(value, str):
+            for member in cls:
+                # Check if 'INDICATED_FOR' == 'INDICATED_FOR'
+                if member.name == value.upper().strip():
+                    return member
+        return None
 
 
 class Triplet(BaseModel):
@@ -75,15 +91,29 @@ class IngestionEngine:
         """
 
         system_prompt = """
-        You are a specialized medical information extractor.
-        You will receive a numbered list of text segments.
-        Extract medical entities (Diseases, Drugs, Tests) for each segment separately.
+        You are an expert medical annotator.
+        Your task is to extract all clinical entities from the provided text to build a medical knowledge graph.
+
+        EXTRACT THE FOLLOWING CATEGORIES:
+        1. DRUGS & TREATMENTS: Brand names, generic names, and therapeutic protocols (e.g., 'Pylera', 'Amoxicilline', 'Quadruple thérapie').
+        2. DISEASES & CONDITIONS: Pathogens, syndromes, and specific diagnoses (e.g., 'Infection à H. pylori', 'Cancer gastrique').
+        3. SYMPTOMS & SIGNS: Clinical manifestations (e.g., 'Dysgueusie', 'Carence en fer').
+        4. TESTS & PROCEDURES: Diagnostic or monitoring actions (e.g., 'Endoscopie', 'Test respiratoire à l'urée').
+        5. PATIENT POPULATIONS: Specific demographics or groups (e.g., 'Enfants <12 ans', 'Femmes enceintes', 'Seniors').
+        6. CLINICAL STATUS/CONTEXT: Specific patient history or required conditions (e.g., 'Antécédent d'ulcère', 'Avant bypass gastrique', 'Traitement au long cours par IPP').
+
+        CRITICAL RULES:
+        - Extract entities exactly as they appear in the text, but prioritize the full clinical phrase (e.g., 'Carence en vitamine B12' instead of just 'Carence').
+        - Do not extract vague terms like 'patients', 'doctor', or 'hospital' unless they are part of a specific population group.
 
         OUTPUT FORMAT:
-        Return a JSON object with a key "results" containing a list of objects.
-        Each object must have:
-        - "segment_id": The number of the text segment.
-        - "entities": A list of {"name": "...", "type": "..."}.
+        Return a JSON object with a 'results' key. Each entry must have a 'segment_id' matching the input.
+        {
+            "results": [
+                {"segment_id": 0, "entities": [{"name": "Pylera", "type": "Drug"}]},
+                ...
+            ]
+        }
         """
         user_content = "\n\n".join([f"SEGMENT {i}:\n{text}" for i, text in enumerate(batch_text)])
 
@@ -114,7 +144,7 @@ class IngestionEngine:
 
         system_prompt = """
         You are a medical data architect specializing in Entity Resolution.
-        For EVERY entity provided in the input list, you must provide its canonical version.
+        For every entity provided in the input list, you must provide its canonical version.
 
         RULES:
         1. Do not consolidate the list. If I send 10 entities, you must return exactly 10 entities in the same order.
@@ -160,6 +190,9 @@ class IngestionEngine:
             List of validated triplets in the format: {"subject": str, "predicate": str, "object": str}.
         """
 
+        # Create a mapping to recover keys from hallucinated descriptions
+        value_to_key = {p.value: p.name for p in MedicalPredicate}
+
         # Prepare schema and constraints for the prompt
         predicate_info = "\n".join([f"- {p.name}: {p.value}" for p in MedicalPredicate])
 
@@ -177,6 +210,7 @@ class IngestionEngine:
         5. REQUIRES_MONITORING_TEST: [Drug] -> [Test]
         6. TREATMENT_OPTION: [Disease] -> [Drug/Protocol/Procedure]
         7. FOLLOW_UP_PLAN: [Treatment/Disease] -> [Schedule/Action]
+        8. DEMOGRAPHICS: [Disease/Treatment] -> [Patient Population/Age Group]
 
         ALLOWED PREDICATES:
         {predicate_info}
@@ -205,24 +239,72 @@ class IngestionEngine:
         if not raw_json:
             return []
 
+        # Pre-processing: convert descriptions back to Enum keys to satisfy Pydantic
+        for triplet in raw_json["triplets"]:
+            pred = triplet.get("predicate")
+            if pred in value_to_key:
+                triplet["predicate"] = value_to_key[pred]
+
         # Validate and parse the LLM output with Pydantic
         try:
             validated_data = TripletExtraction.model_validate(raw_json)
 
             # Filter out hallucinations not in the entity_names list
             final_triplets = []
+
             for triplet in validated_data.triplets:
-                if triplet.subject_entity in entity_names and triplet.object_entity in entity_names:
+                entity_subject = triplet.subject_entity
+                entity_object = triplet.object_entity
+                predicate_name = triplet.predicate.name
+
+                # Check if subject/object are in the text but missed by the NER list
+                is_valid_subject =\
+                    entity_subject in entity_names or (entity_subject in source_text and len(entity_subject) > 2)
+                is_valid_object =\
+                    entity_object in entity_names or (entity_object in source_text and len(entity_object) > 2)
+
+                if is_valid_subject and is_valid_object:
+
+                    # Catch LLM blunder and enforce Directionality: Disease -> TREATMENT_OPTION -> Drug
+                    if predicate_name == "TREATMENT_OPTION" and ("Infection" in entity_object or "Syndrome" in entity_object):
+                        entity_subject, entity_object = entity_object, entity_subject
+
                     final_triplets.append({
-                        "subject": triplet.subject_entity,
-                        "predicate": triplet.predicate.name,
-                        "object": triplet.object_entity
+                        "subject": entity_subject,
+                        "predicate": predicate_name,
+                        "object": entity_object
                     })
                 else:
                     print(f"DEBUG: Dropping hallucinated entity in triplet: {triplet}")
+
+            self.log_triplets(triplets=final_triplets)
             return final_triplets
 
         except Exception as e:
             print(f"Validation Error in Triplets: {e}")
             return []
 
+
+
+    def log_triplets(self, triplets: list[dict]) -> None:
+        """
+        Export the triplets to a CSV file.
+        """
+        if not triplets:
+            print("Warning: No triplets to log.")
+            return
+
+        path_to_results = "logs"
+        os.makedirs(path_to_results, exist_ok=True)
+
+        filename = "triplets.csv"
+
+        filepath = os.path.join(path_to_results, filename)
+        csv_headers = ["subject", "predicate", "object"]
+
+        with open(filepath, "w", newline="", encoding="utf-8") as fid:
+            csv_writer = csv.DictWriter(fid, fieldnames=csv_headers)
+            csv_writer.writeheader()
+            csv_writer.writerows(triplets)
+
+        print(f"Successfully logged {len(triplets)} triplets to {filepath}.")

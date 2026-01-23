@@ -1,0 +1,44 @@
+subject,predicate,object
+Infection à Helicobacter pylori,TREATMENT_OPTION,Quadruple thérapie à base de bismuth
+Infection à Helicobacter pylori,TREATMENT_OPTION,Pylera
+Pylera,INDICATED_FOR,Infection à Helicobacter pylori
+Infection à Helicobacter pylori,TREATMENT_OPTION,Oméprazole
+Oméprazole,INDICATED_FOR,Ulcère gastroduodénal
+Infection à Helicobacter pylori,MANIFESTS_AS,Méléna
+Infection à Helicobacter pylori,MANIFESTS_AS,Diarrhée
+Infection à Helicobacter pylori,MANIFESTS_AS,Dysgueusie
+Infection à Helicobacter pylori,MANIFESTS_AS,Langue noire villeuse
+Métronidazole,MANIFESTS_AS,Effet antabuse (réaction disulfirame-like)
+Pylera,CONTRAINDICATED_WITH,Insuffisance hépatique
+Pylera,CONTRAINDICATED_WITH,Insuffisance rénale
+Infection à Helicobacter pylori,TREATMENT_OPTION,Traitement concomitant
+Infection à Helicobacter pylori,TREATMENT_OPTION,Amoxicilline
+Infection à Helicobacter pylori,TREATMENT_OPTION,Clarithromycine
+Infection à Helicobacter pylori,TREATMENT_OPTION,Métronidazole
+Infection à Helicobacter pylori,TREATMENT_OPTION,Inhibiteur de la pompe à protons
+Infection à Helicobacter pylori,TREATMENT_OPTION,Esoméprazole
+Infection à Helicobacter pylori,TREATMENT_OPTION,Rabéprazole
+Métronidazole,MANIFESTS_AS,Effet antabuse (réaction disulfirame-like)
+Traitement concomitant,MANIFESTS_AS,Troubles digestifs
+Traitement concomitant,MANIFESTS_AS,Réactions cutanées
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Test respiratoire à l'urée marquée au carbone 13
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Endoscopie digestive
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Culture microbiologique
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Réaction en chaîne par polymérase
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Sérologie Helicobacter pylori
+Traitement concomitant,CONTRAINDICATED_WITH,Hypersensibilité à la pénicilline
+Amoxicilline,CONTRAINDICATED_WITH,Hypersensibilité à la pénicilline
+Infection à Helicobacter pylori,MANIFESTS_AS,Ulcère gastroduodénal
+Anti-inflammatoires non stéroïdiens,MANIFESTS_AS,Ulcère gastroduodénal
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Biopsies gastriques
+Infection à Helicobacter pylori,MANIFESTS_AS,Dyspepsie fonctionnelle
+Infection à Helicobacter pylori,MANIFESTS_AS,Cancer gastrique
+Infection à Helicobacter pylori,MANIFESTS_AS,Lymphome du MALT gastrique
+Infection à Helicobacter pylori,MANIFESTS_AS,Lésions précancéreuses de la muqueuse gastrique
+Infection à Helicobacter pylori,MANIFESTS_AS,Atrophie gastrique
+Infection à Helicobacter pylori,MANIFESTS_AS,Métaplasie gastrique
+Infection à Helicobacter pylori,MANIFESTS_AS,Dysplasie gastrique
+Infection à Helicobacter pylori,MANIFESTS_AS,Carence en fer
+Infection à Helicobacter pylori,MANIFESTS_AS,Carence en vitamine B12
+Infection à Helicobacter pylori,MANIFESTS_AS,Purpura thrombopénique immunologique
+Biopsies gastriques,REQUIRES_DIAGNOSTIC_TEST,Atrophie gastrique sévère

@@ -16,7 +16,7 @@ class EntityRegistry:
         self._canonical_entity_store: dict[str, dict] = {}
 
 
-    def resolve_entities(self, raw_entities_batch: list[dict]) -> None:
+    def update_canonical_entities(self, raw_entities_batch: list[dict]) -> None:
         """
         Mutate class state by resolving unknown entities via LLM.
         """
@@ -102,6 +102,34 @@ class EntityRegistry:
         return len(self._synonym_lookup_map)
 
 
+    def load_canonical_entities(self, csv_path: str, csv_name: str) -> None:
+        """
+        Update the class state by loading a precomputed CSV file of entities instead exploring and resolving text chunks.
+        Expects a CSV where one column is 'name' and another is 'type'.
+        """
+        csv_path_and_name = os.path.join(csv_path, csv_name)
+        if not os.path.exists(csv_path_and_name):
+            raise FileNotFoundError(f"Provided CSV file not found: {csv_path_and_name}")
+
+        count = 0
+
+        with open(csv_path_and_name, mode='r', encoding='utf-8') as f:
+            csv_reader = csv.DictReader(f)
+            for row in csv_reader:
+                canonical_name = row.get("name")
+                if not canonical_name:
+                    continue
+
+                self._canonical_entity_store[canonical_name] = dict(row)
+
+                canonical_key = canonical_name.lower().strip()
+                self._synonym_lookup_map[canonical_key] = canonical_name
+
+                count += 1
+
+        print(f"Successfully loaded {count} canonical entities from {csv_name}.")
+
+
     def get_canonical_names_from_raw(self, raw_entity_names: list[str]) -> list[str]:
         """
         Convert a list of raw entity names found in a chunk into their canonical versions.
@@ -118,26 +146,24 @@ class EntityRegistry:
         """
         Export the canonical entities metadata to a CSV file.
         """
-        path_to_results = "logs"
-
-        os.makedirs(path_to_results, exist_ok=True)
-
         entities = self.canonical_entity_store
-
         if not entities:
             print("Warning: No entities found in registry.")
             return
 
+        path_to_results = "logs"
+        os.makedirs(path_to_results, exist_ok=True)
+
         all_keys = set()
-        for ent in entities:
-            all_keys.update(ent.keys())
+        for e in entities:
+            all_keys.update(e.keys())
         csv_headers = sorted(list(all_keys))
 
-        filepath = os.path.join(path_to_results, f"{filename}.csv")
-
+        filepath = os.path.join(path_to_results, f"{filename}")
         with open(filepath, "w", newline="", encoding="utf-8") as fid:
-            dico_writer = csv.DictWriter(fid, fieldnames=csv_headers, restval="")
-            dico_writer.writeheader()
-            dico_writer.writerows(entities)
+            csv_writer = csv.DictWriter(fid, fieldnames=csv_headers, restval="")
+            csv_writer.writeheader()
+            csv_writer.writerows(entities)
 
         print(f"Successfully logged {len(entities)} entities to {filepath}.")
+

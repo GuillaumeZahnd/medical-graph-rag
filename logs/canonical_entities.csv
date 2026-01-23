@@ -1,45 +1,49 @@
 name,type
-Quadruple thérapie à base de bismuth,Drug
+Quadruple thérapie à base de bismuth,Treatment
 Pylera,Drug
 Sous-citrate de bismuth,Drug
 Métronidazole,Drug
 Tétracycline,Drug
 Oméprazole,Drug
-Amoxicilline,Drug
-Clarithromycine,Drug
-Inhibiteur de la pompe à protons,Drug
-Ésoméprazole,Drug
-Rabéprazole,Drug
-Test respiratoire à l'urée marquée au carbone 13,Test
 Méléna,Disease
 Diarrhée,Disease
 Dysgueusie,Disease
-Effet antabuse,Disease
+Langue noire villeuse,Disease
+Effet antabuse (réaction disulfirame-like),Adverse Effect
 Insuffisance hépatique,Disease
 Insuffisance rénale,Disease
+Traitement concomitant,Treatment
+Amoxicilline,Drug
+Clarithromycine,Drug
+Inhibiteur de la pompe à protons,Drug
+Esoméprazole,Drug
+Rabéprazole,Drug
 Troubles digestifs,Disease
 Réactions cutanées,Disease
+Test respiratoire à l'urée marquée au carbone 13,Test
 Endoscopie digestive,Test
-Culture bactérienne,Test
+Culture microbiologique,Test
 Réaction en chaîne par polymérase,Test
-Allergie à la pénicilline,Disease
+Hypersensibilité à la pénicilline,Disease
 Ulcère gastroduodénal,Disease
 Anti-inflammatoires non stéroïdiens,Drug
 Dyspepsie fonctionnelle,Disease
-Cancer de l'estomac,Disease
+Endoscopie digestive haute,Test
+Cancer gastrique,Disease
+Résection endoscopique d'un cancer gastrique,Procedure
 Syndrome de Lynch,Disease
-Lymphome du tissu lymphoïde associé aux muqueuses gastrique,Disease
-Lésions muqueuses gastriques pré-néoplasiques,Disease
+Lymphome du MALT gastrique,Disease
+Lésions précancéreuses de la muqueuse gastrique,Disease
 Atrophie gastrique,Disease
 Métaplasie gastrique,Disease
 Dysplasie gastrique,Disease
-Dérivation gastrique (by-pass gastrique),Procedure
-Carence martiale,Disease
+Bypass gastrique,Treatment
+Carence en fer,Disease
 Carence en vitamine B12,Disease
 Purpura thrombopénique immunologique,Disease
-Infection à Helicobacter pylori,Disease
 Sérologie Helicobacter pylori,Test
-Gastroscopie,Test
-Biopsie gastrique,Test
-Antibiotique,Drug
-Cancer gastrique,Disease
+Biopsies gastriques,Test
+Atrophie gastrique sévère,Disease
+Antibiotiques,Drug
+Infection à Helicobacter pylori,Disease
+Ulcères gastroduodénaux,Disease
