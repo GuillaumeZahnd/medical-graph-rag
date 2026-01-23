@@ -1,0 +1,12 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+neo4j = {version="==6.1.0", index="pypi"}
+pymupdf4llm = {version="==0.2.9", index="pypi", extras = ["layout", "ocr"]}
+mistralai = {version="==1.10.1", index="pypi"}
+
+[requires]
+python_version = "3.12"

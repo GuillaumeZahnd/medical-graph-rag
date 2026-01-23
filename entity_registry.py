@@ -18,7 +18,7 @@ class EntityRegistry:
 
     def resolve_entities(self, raw_entities_batch: list[dict]) -> None:
         """
-        Mutates class state by resolving unknown entities via LLM.
+        Mutate class state by resolving unknown entities via LLM.
         """
         # Determine whether these entities are already resolved, otherwise we will resolved them via LLM.
         # Use a dictionary to de-duplicate within the batch itself to save tokens.
@@ -73,7 +73,7 @@ class EntityRegistry:
     @property
     def synonym_lookup_map(self) -> dict[str, str]:
         """
-        Returns a copy of the synonym-to-canonical mapping.
+        Return a copy of the synonym-to-canonical mapping.
         """
         return self._synonym_lookup_map.copy()
 
@@ -81,7 +81,7 @@ class EntityRegistry:
     @property
     def canonical_entity_store(self) -> list[dict]:
         """
-        Returns the list of unique, resolved medical entities with metadata.
+        Return the list of unique, resolved medical entities with metadata.
         """
         return list(self._canonical_entity_store.values())
 
@@ -89,7 +89,7 @@ class EntityRegistry:
     @property
     def entity_count(self) -> int:
         """
-        Returns the number of unique canonical entities stored.
+        Return the number of unique canonical entities stored.
         """
         return len(self._canonical_entity_store)
 
@@ -97,14 +97,14 @@ class EntityRegistry:
     @property
     def synonym_count(self) -> int:
         """
-        Returns the total number of variations/synonyms mapped.
+        Return the total number of variations/synonyms mapped.
         """
         return len(self._synonym_lookup_map)
 
 
     def get_canonical_names_from_raw(self, raw_entity_names: list[str]) -> list[str]:
         """
-        Converts a list of raw entity names found in a chunk into their canonical versions.
+        Convert a list of raw entity names found in a chunk into their canonical versions.
         """
         results = set()
         for name in raw_entity_names:
