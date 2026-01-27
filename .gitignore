@@ -1,3 +1,6 @@
+*.env
 *.zip
 dataset/
 *.swp
+__pycache__/
+*.py[cod]
