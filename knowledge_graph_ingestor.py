@@ -41,7 +41,7 @@ class KnowledgeGraphIngestor:
             logging.info("Database constraints verified.")
 
 
-    def ingest_chunks(self, chunks: list[dict[str, Any]]) -> None:
+    def ingest_chunks(self, chunks: list[dict[str, Any]], batch_size: int = 500) -> None:
         """
         Ingest a batch of text chunks and link them to their parent documents.
 
@@ -50,23 +50,70 @@ class KnowledgeGraphIngestor:
         """
 
         if not chunks:
-            print("Warning: No chunks to ingest.")
+            logging.warning("Warning: No chunks to ingest.")
             return
 
         query = """
         UNWIND $rows AS row
-        WITH row WHERE row.source IS NOT NULL
         MERGE (d:Document {name: row.source})
         MERGE (c:Chunk {id: row.id})
-        SET c.text = row.data,
-            c.hierarchy = row.hierarchy
+        ON CREATE SET
+            c.text = row.data,
+            c.hierarchy = row.hierarchy,
+            c.created_at = timestamp()
+        ON MATCH SET
+            c.last_seen = timestamp()
         MERGE (c)-[:PART_OF]->(d)
         """
         with self.driver.session(database=self.database) as session:
-            session.execute_write(lambda tx: tx.run(query, rows=chunks))
+            for i in range(0, len(chunks), batch_size):
+                batch = chunks[i : i + batch_size]
+                session.execute_write(lambda tx: tx.run(query, rows=batch))
+
+        logging.info(f"Successfully ingested {len(chunks)} chunks.")
 
 
-    def ingest_triplets(self, triplets: list[dict[str, Any]]) -> None:
+    def ingest_aliases(self, alias_lookup_map: dict[str, str]) -> None:
+        """
+        Ingest a mapping of synonyms to canonical entities.
+
+        Args:
+            alias_lookup_map: Dictionary that maps every messy name variation, alias, or synonym found in the text to a
+            unique canonical name, for instance: {"hta": "Hypertension", "high bp": "Hypertension", "High Blood Pressure", "Hypertension", ...}
+        """
+        if not alias_lookup_map:
+            logging.warning("Warning: No aliases to ingest.")
+            return
+
+        rows = [
+            {"alias": str(k).strip(), "canonical": str(v).strip()}
+            for k, v in alias_lookup_map.items()
+        ]
+
+        query = """
+        UNWIND $rows AS row
+
+        // Handle Canonical Node
+        MERGE (c:Entity {name: row.canonical})
+        ON CREATE SET c.is_canonical = true
+        ON MATCH SET c.is_canonical = true
+
+        // Handle Alias Node
+        MERGE (a:Entity {name: row.alias})
+
+        // Thread-safe relationship creation
+        WITH a, c
+        WHERE id(a) <> id(c)
+        MERGE (a)-[:SYNONYM_OF]->(c)
+        """
+
+        with self.driver.session(database=self.database) as session:
+            session.execute_write(lambda tx: tx.run(query, rows=rows))
+
+        logging.info(f"Successfully ingested {len(rows)} alias mappings.")
+
+
+    def ingest_triplets(self, triplets: list[dict[str, Any]], batch_size: int = 500) -> None:
         """
         Ingest a batch of semantic triplets using APOC for dynamic relationship types.
 
@@ -75,19 +122,40 @@ class KnowledgeGraphIngestor:
         """
 
         if not triplets:
-            print("Warning: No triplets to ingest.")
+            logging.warning("Warning: No triplets to ingest.")
             return
+
+        processed_rows = []
+        for t in triplets:
+            processed_rows.append({
+                "subject": str(t["subject"]).strip(),
+                "object": str(t["object"]).strip(),
+                # Normalize predicate: "Treated by" -> "TREATED_BY"
+                "predicate": str(t["predicate"]).strip().replace(" ", "_").upper(),
+                "source": t.get("source", "unknown")
+            })
 
         query = """
         UNWIND $rows AS row
         MERGE (s:Entity {name: row.subject})
         MERGE (o:Entity {name: row.object})
         WITH s, o, row
-        CALL apoc.merge.relationship(s, row.predicate, {}, {}, o, {}) YIELD rel
-        RETURN count(rel)
+        CALL apoc.merge.relationship(
+            s,
+            row.predicate,
+            {},
+            {source: row.source, last_updated: timestamp()},
+            o,
+            {}
+        ) YIELD rel
+        RETURN count(*) as total
         """
         with self.driver.session(database=self.database) as session:
-            session.execute_write(lambda tx: tx.run(query, rows=triplets))
+            for i in range(0, len(processed_rows), batch_size):
+                batch = processed_rows[i : i + batch_size]
+                session.execute_write(lambda tx: tx.run(query, rows=batch))
+
+        logging.info(f"Successfully ingested {len(triplets)} triplets.")
 
 
     def _llm_call(self, system_prompt: str, user_content: str):

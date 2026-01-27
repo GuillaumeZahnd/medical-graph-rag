@@ -1,44 +1,59 @@
-subject,predicate,object
-Infection à Helicobacter pylori,TREATMENT_OPTION,Quadruple thérapie à base de bismuth
-Infection à Helicobacter pylori,TREATMENT_OPTION,Pylera
-Pylera,INDICATED_FOR,Infection à Helicobacter pylori
-Infection à Helicobacter pylori,TREATMENT_OPTION,Oméprazole
-Oméprazole,INDICATED_FOR,Ulcère gastroduodénal
-Infection à Helicobacter pylori,MANIFESTS_AS,Méléna
-Infection à Helicobacter pylori,MANIFESTS_AS,Diarrhée
-Infection à Helicobacter pylori,MANIFESTS_AS,Dysgueusie
-Infection à Helicobacter pylori,MANIFESTS_AS,Langue noire villeuse
-Métronidazole,MANIFESTS_AS,Effet antabuse (réaction disulfirame-like)
-Pylera,CONTRAINDICATED_WITH,Insuffisance hépatique
-Pylera,CONTRAINDICATED_WITH,Insuffisance rénale
-Infection à Helicobacter pylori,TREATMENT_OPTION,Traitement concomitant
-Infection à Helicobacter pylori,TREATMENT_OPTION,Amoxicilline
-Infection à Helicobacter pylori,TREATMENT_OPTION,Clarithromycine
-Infection à Helicobacter pylori,TREATMENT_OPTION,Métronidazole
-Infection à Helicobacter pylori,TREATMENT_OPTION,Inhibiteur de la pompe à protons
-Infection à Helicobacter pylori,TREATMENT_OPTION,Esoméprazole
-Infection à Helicobacter pylori,TREATMENT_OPTION,Rabéprazole
-Métronidazole,MANIFESTS_AS,Effet antabuse (réaction disulfirame-like)
-Traitement concomitant,MANIFESTS_AS,Troubles digestifs
-Traitement concomitant,MANIFESTS_AS,Réactions cutanées
-Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Test respiratoire à l'urée marquée au carbone 13
-Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Endoscopie digestive
-Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Culture microbiologique
-Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Réaction en chaîne par polymérase
-Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Sérologie Helicobacter pylori
-Traitement concomitant,CONTRAINDICATED_WITH,Hypersensibilité à la pénicilline
-Amoxicilline,CONTRAINDICATED_WITH,Hypersensibilité à la pénicilline
-Infection à Helicobacter pylori,MANIFESTS_AS,Ulcère gastroduodénal
-Anti-inflammatoires non stéroïdiens,MANIFESTS_AS,Ulcère gastroduodénal
-Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Biopsies gastriques
-Infection à Helicobacter pylori,MANIFESTS_AS,Dyspepsie fonctionnelle
-Infection à Helicobacter pylori,MANIFESTS_AS,Cancer gastrique
-Infection à Helicobacter pylori,MANIFESTS_AS,Lymphome du MALT gastrique
-Infection à Helicobacter pylori,MANIFESTS_AS,Lésions précancéreuses de la muqueuse gastrique
-Infection à Helicobacter pylori,MANIFESTS_AS,Atrophie gastrique
-Infection à Helicobacter pylori,MANIFESTS_AS,Métaplasie gastrique
-Infection à Helicobacter pylori,MANIFESTS_AS,Dysplasie gastrique
-Infection à Helicobacter pylori,MANIFESTS_AS,Carence en fer
-Infection à Helicobacter pylori,MANIFESTS_AS,Carence en vitamine B12
-Infection à Helicobacter pylori,MANIFESTS_AS,Purpura thrombopénique immunologique
-Biopsies gastriques,REQUIRES_DIAGNOSTIC_TEST,Atrophie gastrique sévère
+subject,predicate,object,source
+Infection à Helicobacter pylori,TREATMENT_OPTION,Quadruple thérapie à base de bismuth,
+Traitement concomitant,FOLLOW_UP_PLAN,Test respiratoire à l’urée marquée au carbone 13,
+Traitement concomitant,MANIFESTS_AS,Réactions cutanées,
+Traitement concomitant,MANIFESTS_AS,Troubles digestifs,
+Infection à Helicobacter pylori,INDICATED_FOR,Antécédent familial au premier degré de cancer gastrique,
+Infection à Helicobacter pylori,TREATMENT_OPTION,Ésoméprazole 40 mg,
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Endoscopie gastrique,
+Infection à Helicobacter pylori,INDICATED_FOR,Lésions muqueuses gastriques prénéoplasiques (atrophie-métaplasie-dysplasie),
+Pylera (association bismuth + métronidazole + tétracycline),INDICATED_FOR,Infection à Helicobacter pylori,
+Infection à Helicobacter pylori,INDICATED_FOR,Syndrome de Lynch (mutation des gènes de réparation de l’ADN),
+Pylera (association bismuth + métronidazole + tétracycline),CONTRAINDICATED_WITH,Femmes enceintes,
+Test respiratoire à l’urée marquée au carbone 13,DEMOGRAPHICS,Quatre semaines sans antibiotique,
+Infection à Helicobacter pylori,TREATMENT_OPTION,Inhibiteurs de la Pompe à Protons,
+Test respiratoire à l’urée marquée au carbone 13,DEMOGRAPHICS,Deux semaines sans Inhibiteurs de la Pompe à Protons,
+Infection à Helicobacter pylori,INDICATED_FOR,Cancer gastrique,
+Infection à Helicobacter pylori,INDICATED_FOR,Carence en vitamine B12,
+Biopsies gastriques (antre et fundus),MANIFESTS_AS,Métaplasie,
+Pylera (association bismuth + métronidazole + tétracycline),CONTRAINDICATED_WITH,Enfants de moins de 12 ans,
+Infection à Helicobacter pylori,INDICATED_FOR,Carence martiale inexpliquée,
+Infection à Helicobacter pylori,TREATMENT_OPTION,Traitement concomitant,
+Infection à Helicobacter pylori,INDICATED_FOR,Dyspepsie fonctionnelle,
+Pylera (association bismuth + métronidazole + tétracycline),CONTRAINDICATED_WITH,Patients insuffisants hépatiques,
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Culture bactérienne ou PCR,
+Infection à Helicobacter pylori,TREATMENT_OPTION,Clarithromycine 500 mg,
+Allergie à la pénicilline,CONTRAINDICATED_WITH,Amoxicilline 1 g,
+Biopsies gastriques (antre et fundus),MANIFESTS_AS,Lésions prénéoplasiques,
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Aucun inhibiteur de la pompe à protons depuis 2 semaines,
+Infection à Helicobacter pylori,TREATMENT_OPTION,Métronidazole 500 mg,
+Infection à Helicobacter pylori,TREATMENT_OPTION,Rabéprazole 20 mg,
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Traitement au long cours par inhibiteurs de la pompe à protons (IPP),
+Infection à Helicobacter pylori,DEMOGRAPHICS,Patient âgé de plus de 45 ans,
+Infection à Helicobacter pylori,MANIFESTS_AS,Diarrhée,
+Infection à Helicobacter pylori,MANIFESTS_AS,Dysgueusie,
+Infection à Helicobacter pylori,INDICATED_FOR,Antécédent d'ulcère,
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Biopsies systématiques,
+Infection à Helicobacter pylori,TREATMENT_OPTION,Trithérapie (deux antibiotiques + inhibiteur de la pompe à protons),
+Quadruple thérapie à base de bismuth,FOLLOW_UP_PLAN,Test respiratoire à l’urée marquée au carbone 13,
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Aucun antibiotique depuis 4 semaines,
+Infection à Helicobacter pylori,INDICATED_FOR,Antécédent personnel de résection localisée d’un cancer gastrique,
+Infection à Helicobacter pylori,INDICATED_FOR,Purpura thrombopénique immunologique,
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Test respiratoire à l’urée marquée au carbone 13,
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Biopsies gastriques (antre et fundus),
+Test respiratoire à l’urée marquée au carbone 13,DEMOGRAPHICS,À jeun le jour du test,
+Infection à Helicobacter pylori,MANIFESTS_AS,Langue noire villeuse,
+Biopsies gastriques (antre et fundus),MANIFESTS_AS,Dysplasie,
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Sérologie *Helicobacter pylori*,
+Biopsies gastriques (antre et fundus),MANIFESTS_AS,Atrophie gastrique sévère,
+Infection à Helicobacter pylori,TREATMENT_OPTION,Amoxicilline 1 g,
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Prévention primaire des ulcères,
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Endoscopie avec antibiogramme,
+Pylera (association bismuth + métronidazole + tétracycline),CONTRAINDICATED_WITH,Patients insuffisants rénaux,
+Infection à Helicobacter pylori,INDICATED_FOR,Lymphome du MALT gastrique,
+Infection à Helicobacter pylori,MANIFESTS_AS,Méléna,
+Infection à Helicobacter pylori,REQUIRES_DIAGNOSTIC_TEST,Avant pontage gastrique,
+Infection à Helicobacter pylori,MANIFESTS_AS,Goût métallique,
+Métronidazole 500 mg,MANIFESTS_AS,Effet antabuse (réaction disulfirame-like),
+Métronidazole,MANIFESTS_AS,Effet antabuse (réaction disulfirame-like),
+Infection à Helicobacter pylori,INDICATED_FOR,Ulcère gastroduodénal,

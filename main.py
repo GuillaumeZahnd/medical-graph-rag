@@ -6,7 +6,7 @@ from dataset import Dataset
 from entity_registry import EntityRegistry
 from knowledge_graph_ingestor import KnowledgeGraphIngestor
 from document_extractor import DocumentExtractor
-from utils import log_chunks, log_triplets
+from utils import log_chunks, log_canonical_entities, log_triplets, log_aliases
 
 
 if __name__ == "__main__":
@@ -30,7 +30,8 @@ if __name__ == "__main__":
 
     extractor = DocumentExtractor(max_chunk_size=2000)
     ingestor = KnowledgeGraphIngestor(uri=URI, auth=AUTH, database=DATABASE, llm_client=llm_client, llm_model=llm_model)
-    entity_registry = EntityRegistry(ingestion_engine=ingestor)
+    ingestor.configure_database()
+    registry = EntityRegistry(ingestion_engine=ingestor)
 
     # [0] Collect all text chunks from all documents
     chunks_collection = []
@@ -42,15 +43,18 @@ if __name__ == "__main__":
         # Log chunks to JSON for visual inspection
         log_chunks(chunks=chunks)
 
-        #ingestor.ingest_chunks(chunks=chunks)
+        # Ingest chunks in Neo4j graph database
+        ingestor.ingest_chunks(chunks=chunks)
+
         chunks_collection.extend(chunks)
 
     nb_chunks = len(chunks_collection)
 
     batch_size = 5
 
+
     # Possibility to completely bypass the first pass to save time
-    rebuild_canonical_entities = False
+    rebuild_canonical_entities = True
 
     if rebuild_canonical_entities:
 
@@ -66,7 +70,7 @@ if __name__ == "__main__":
 
             # [2] Detect whether there are new entities
             all_entities_in_this_batch = [ent for sublist in batch_raw_entities for ent in sublist]
-            registry_keys = entity_registry.synonym_lookup_map
+            registry_keys = registry.alias_lookup_map
             new_entities = [
                 e for e in all_entities_in_this_batch
                 if e['name'].lower().strip() not in registry_keys
@@ -74,15 +78,21 @@ if __name__ == "__main__":
 
             # [3] Resolve new entities (either map them to an existing canonical form, or create a new canonical form)
             if new_entities:
-                entity_registry.update_canonical_entities(new_entities)
+                registry.update_canonical_entities(new_entities)
 
-        entity_registry.log_entities(filename="canonical_entities.csv")
+        # Log canonical entities to CSV for visual inspection
+        log_canonical_entities(entities=registry.canonical_entity_store, filename="canonical_entities.csv")
+
+        # Log aliases to JSON for visual inspection
+        log_aliases(alias_lookup_map=registry.alias_lookup_map)
+
+        ingestor.ingest_aliases(alias_lookup_map=registry.alias_lookup_map)
+
 
     else:
         csv_path="logs"
         csv_name="canonical_entities.csv"
-        entity_registry.load_canonical_entities(csv_path=csv_path, csv_name=csv_name)
-
+        registry.load_canonical_entities(csv_path=csv_path, csv_name=csv_name)
 
     print(f"\n\nSECOND PASS: ENTITY-PREDICATE-ENTITY TRIPLET EXTRACTION \nNUMBER OF CHUNKS: {nb_chunks}")
     unique_triplets = set()
@@ -94,7 +104,7 @@ if __name__ == "__main__":
 
         # [4] Extract directed semantic relationships between entities
         triplets = ingestor.extract_triplets(
-            source_text=batch_text, entities=entity_registry.canonical_entity_store)
+            source_text=batch_text, entities=registry.canonical_entity_store)
 
         for t in triplets:
             unique_triplets.add((t['subject'], t['predicate'], t['object']))
@@ -103,3 +113,4 @@ if __name__ == "__main__":
     unique_triplets_to_log = [{"subject": s, "predicate": p, "object": o} for s, p, o in unique_triplets]
     log_triplets(triplets=unique_triplets_to_log, filename="triplets.csv")
 
+    ingestor.ingest_triplets(triplets=unique_triplets_to_log)

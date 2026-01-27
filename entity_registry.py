@@ -7,9 +7,9 @@ class EntityRegistry:
     def __init__(self, ingestion_engine: KnowledgeGraphIngestor) -> None:
         self.ingestion_engine = ingestion_engine
 
-        # Translator: Dictionary that maps every messy name variation or synonym found in the text to a unique canonical name.
+        # Translator: Dictionary that maps every messy name variation, alias, or synonym found in the text to a unique canonical name.
         # Example: {"hta": "Hypertension", "high bp": "Hypertension", "High Blood Pressure", "Hypertension", ...}
-        self._synonym_lookup_map: dict[str, str] = {}
+        self._alias_lookup_map: dict[str, str] = {}
 
         # Store: Dictionary that stores the rich metadata for the entities that will constitute the nodes of the graph.
         # Example: {"Hypertension": {"name": "Hypertension", "type": "Disease"}}
@@ -26,7 +26,7 @@ class EntityRegistry:
         for raw_entity in raw_entities_batch:
             raw_name = raw_entity.get("name")
             key = raw_name.lower().strip()
-            if key not in self._synonym_lookup_map and key not in unique_unresolved_entities:
+            if key not in self._alias_lookup_map and key not in unique_unresolved_entities:
                 unique_unresolved_entities[key] = raw_entity
 
         unresolved_entities = list(unique_unresolved_entities.values())
@@ -58,12 +58,12 @@ class EntityRegistry:
                 raw_key = raw_name.lower().strip()
                 canonical_key = canonical_name.lower().strip()
 
-                # Map the synonym.
-                self._synonym_lookup_map[raw_key] = canonical_name
+                # Map the alias.
+                self._alias_lookup_map[raw_key] = canonical_name
 
                 # Map the canonical name to itself (avoids future LLM roundtrips).
-                if canonical_key not in self._synonym_lookup_map:
-                    self._synonym_lookup_map[canonical_key] = canonical_name
+                if canonical_key not in self._alias_lookup_map:
+                    self._alias_lookup_map[canonical_key] = canonical_name
 
                 # Store metadata only once per unique canonical entity.
                 if canonical_name not in self._canonical_entity_store:
@@ -71,11 +71,11 @@ class EntityRegistry:
 
 
     @property
-    def synonym_lookup_map(self) -> dict[str, str]:
+    def alias_lookup_map(self) -> dict[str, str]:
         """
-        Return a copy of the synonym-to-canonical mapping.
+        Return a copy of the alias-to-canonical mapping.
         """
-        return self._synonym_lookup_map.copy()
+        return self._alias_lookup_map.copy()
 
 
     @property
@@ -95,11 +95,11 @@ class EntityRegistry:
 
 
     @property
-    def synonym_count(self) -> int:
+    def alias_count(self) -> int:
         """
-        Return the total number of variations/synonyms mapped.
+        Return the total number of aliases (synonyms, name variations) mapped.
         """
-        return len(self._synonym_lookup_map)
+        return len(self._alias_lookup_map)
 
 
     def load_canonical_entities(self, csv_path: str, csv_name: str) -> None:
@@ -123,7 +123,7 @@ class EntityRegistry:
                 self._canonical_entity_store[canonical_name] = dict(row)
 
                 canonical_key = canonical_name.lower().strip()
-                self._synonym_lookup_map[canonical_key] = canonical_name
+                self._alias_lookup_map[canonical_key] = canonical_name
 
                 count += 1
 
@@ -137,33 +137,6 @@ class EntityRegistry:
         results = set()
         for name in raw_entity_names:
             key = name.lower().strip()
-            canonical = self._synonym_lookup_map.get(key, name)
+            canonical = self._alias_lookup_map.get(key, name)
             results.add(canonical)
         return list(results)
-
-
-    def log_entities(self, filename: str) -> None:
-        """
-        Export the canonical entities metadata to a CSV file.
-        """
-        entities = self.canonical_entity_store
-        if not entities:
-            print("Warning: No entities found in registry.")
-            return
-
-        path_to_results = "logs"
-        os.makedirs(path_to_results, exist_ok=True)
-
-        all_keys = set()
-        for e in entities:
-            all_keys.update(e.keys())
-        csv_headers = sorted(list(all_keys))
-
-        filepath = os.path.join(path_to_results, f"{filename}")
-        with open(filepath, "w", newline="", encoding="utf-8") as fid:
-            csv_writer = csv.DictWriter(fid, fieldnames=csv_headers, restval="")
-            csv_writer.writeheader()
-            csv_writer.writerows(entities)
-
-        print(f"Successfully logged {len(entities)} entities to {filepath}.")
-

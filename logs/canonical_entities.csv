@@ -1,49 +1,68 @@
 name,type
-Quadruple thérapie à base de bismuth,Treatment
-Pylera,Drug
-Sous-citrate de bismuth,Drug
-Métronidazole,Drug
-Tétracycline,Drug
-Oméprazole,Drug
-Méléna,Disease
-Diarrhée,Disease
-Dysgueusie,Disease
-Langue noire villeuse,Disease
-Effet antabuse (réaction disulfirame-like),Adverse Effect
-Insuffisance hépatique,Disease
-Insuffisance rénale,Disease
-Traitement concomitant,Treatment
-Amoxicilline,Drug
-Clarithromycine,Drug
-Inhibiteur de la pompe à protons,Drug
-Esoméprazole,Drug
-Rabéprazole,Drug
-Troubles digestifs,Disease
-Réactions cutanées,Disease
-Test respiratoire à l'urée marquée au carbone 13,Test
-Endoscopie digestive,Test
-Culture microbiologique,Test
-Réaction en chaîne par polymérase,Test
-Hypersensibilité à la pénicilline,Disease
-Ulcère gastroduodénal,Disease
-Anti-inflammatoires non stéroïdiens,Drug
-Dyspepsie fonctionnelle,Disease
-Endoscopie digestive haute,Test
-Cancer gastrique,Disease
-Résection endoscopique d'un cancer gastrique,Procedure
-Syndrome de Lynch,Disease
-Lymphome du MALT gastrique,Disease
-Lésions précancéreuses de la muqueuse gastrique,Disease
-Atrophie gastrique,Disease
-Métaplasie gastrique,Disease
-Dysplasie gastrique,Disease
-Bypass gastrique,Treatment
-Carence en fer,Disease
-Carence en vitamine B12,Disease
-Purpura thrombopénique immunologique,Disease
-Sérologie Helicobacter pylori,Test
-Biopsies gastriques,Test
-Atrophie gastrique sévère,Disease
-Antibiotiques,Drug
+Quadruple thérapie à base de bismuth,Drugs & Treatments
+Pylera (association bismuth + métronidazole + tétracycline),Drugs & Treatments
+Oméprazole 20 mg,Drugs & Treatments
+Sous-citrate de bismuth,Drugs & Treatments
+Métronidazole,Drugs & Treatments
+Tétracycline,Drugs & Treatments
+Méléna,Symptoms & Signs
+Diarrhée,Symptoms & Signs
+Dysgueusie,Symptoms & Signs
+Goût métallique,Symptoms & Signs
+Langue noire villeuse,Symptoms & Signs
+Effet antabuse (réaction disulfirame-like),Symptoms & Signs
+Femmes enceintes,Patient Populations
+Enfants de moins de 12 ans,Patient Populations
+Patients insuffisants hépatiques,Patient Populations
+Patients insuffisants rénaux,Patient Populations
+Traitement concomitant,Drugs & Treatments
+Amoxicilline 1 g,Drugs & Treatments
+Métronidazole 500 mg,Drugs & Treatments
+Clarithromycine 500 mg,Drugs & Treatments
+Inhibiteurs de la Pompe à Protons,Drugs & Treatments
+Ésoméprazole 40 mg,Drugs & Treatments
+Rabéprazole 20 mg,Drugs & Treatments
+Troubles digestifs,Symptoms & Signs
+Réactions cutanées,Symptoms & Signs
+Test respiratoire à l’urée marquée au carbone 13,Tests & Procedures
+Quatre semaines sans antibiotique,Clinical Status/Context
+Deux semaines sans Inhibiteurs de la Pompe à Protons,Clinical Status/Context
+À jeun le jour du test,Clinical Status/Context
+Analyse de l'air expiré,Tests & Procedures
+Endoscopie avec antibiogramme,Tests & Procedures
+Culture bactérienne ou PCR,Tests & Procedures
+Trithérapie (deux antibiotiques + inhibiteur de la pompe à protons),Drugs & Treatments
+Allergie à la pénicilline,Clinical Status/Context
+Ulcère gastroduodénal,Diseases & Conditions
+Antécédent d'ulcère,Clinical Status/Context
+Anti-inflammatoires non stéroïdiens,Drugs & Treatments
+Prévention primaire des ulcères,Clinical Status/Context
+Dyspepsie fonctionnelle,Diseases & Conditions
+Gastroscopie normale,Tests & Procedures
+Cancer gastrique,Diseases & Conditions
+Antécédent personnel de résection localisée d’un cancer gastrique,Clinical Status/Context
+Antécédent familial au premier degré de cancer gastrique,Clinical Status/Context
+Syndrome de Lynch (mutation des gènes de réparation de l’ADN),Diseases & Conditions
+Lymphome du MALT gastrique,Diseases & Conditions
+Lésions muqueuses gastriques prénéoplasiques (atrophie-métaplasie-dysplasie),Diseases & Conditions
+Traitement au long cours par inhibiteurs de la pompe à protons (IPP),Clinical Status/Context
+Avant pontage gastrique,Clinical Status/Context
+Endoscopie gastrique,Tests & Procedures
+Biopsies systématiques,Tests & Procedures
+Carence martiale inexpliquée,Symptoms & Signs
+Carence en vitamine B12,Symptoms & Signs
+Purpura thrombopénique immunologique,Diseases & Conditions
+Douleurs inexpliquées,Symptoms & Signs
+Sérologie *Helicobacter pylori*,Tests & Procedures
+Endoscopie digestive,Tests & Procedures
+Biopsies gastriques (antre et fundus),Tests & Procedures
+Lésions prénéoplasiques,Diseases & Conditions
+Atrophie gastrique sévère,Diseases & Conditions
+Métaplasie,Disease
+Dysplasie,Disease
 Infection à Helicobacter pylori,Disease
-Ulcères gastroduodénaux,Disease
+Aucun antibiotique depuis 4 semaines,Clinical Status
+Aucun inhibiteur de la pompe à protons depuis 2 semaines,Clinical Status
+Patient âgé de plus de 45 ans,Patient Population
+Résistance bactérienne aux antibiotiques,Disease
+Éradication bactérienne,Clinical Status/Context
