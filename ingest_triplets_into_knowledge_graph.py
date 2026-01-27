@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent
 CSV_FILE = BASE_DIR / "logs" / "triplets.csv"
 
 
-class KnowledgeGraphIngesto:
+class KnowledgeGraphIngestor:
     def __init__(self, uri: str, auth: tuple[str, str], database: str) -> None:
         self.driver = GraphDatabase.driver(uri, auth=auth)
         self.database = database
@@ -58,7 +58,7 @@ class KnowledgeGraphIngesto:
 
 
 def main():
-    ingestor = KnowledgeGraphIngesto(uri=URI, auth=AUTH, database="neo4j")
+    ingestor = KnowledgeGraphIngestor(uri=URI, auth=AUTH, database="neo4j")
     ingestor.configure_database()
 
     dataframe = pd.read_csv(CSV_FILE)

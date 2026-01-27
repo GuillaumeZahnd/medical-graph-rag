@@ -1,10 +1,10 @@
 import os
 import csv
-from ingestion_engine import IngestionEngine
+from knowledge_graph_ingestor import KnowledgeGraphIngestor
 
 
 class EntityRegistry:
-    def __init__(self, ingestion_engine: IngestionEngine) -> None:
+    def __init__(self, ingestion_engine: KnowledgeGraphIngestor) -> None:
         self.ingestion_engine = ingestion_engine
 
         # Translator: Dictionary that maps every messy name variation or synonym found in the text to a unique canonical name.

@@ -1,61 +1,93 @@
 import os
-import csv
+from pathlib import Path
+import pandas as pd
 import json
-from enum import Enum
-from pydantic import BaseModel, Field
+import logging
+from dotenv import load_dotenv
+from neo4j import GraphDatabase
+from typing import Any
+
+from llm_client import ChatClient
+from schema import MedicalPredicate, TripletExtraction
 
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-class MedicalPredicate(Enum):
-    """
-    These are the eight predicates that are necessary and sufficient to handle pairwise entity relationships.
-    """
-    REQUIRES_DIAGNOSTIC_TEST = "Pre-treatment investigation to confirm diagnosis."
-    REQUIRES_MONITORING_TEST = "Safety/Efficacy checks required during active treatment."
-    TREATMENT_OPTION = "Intervention (drug, surgery, lifestyle) used for treatment."
-    FOLLOW_UP_PLAN = "Scheduled re-evaluation of patient status."
-    INDICATED_FOR = "Specific condition a treatment is approved for."
-    CONTRAINDICATED_WITH = "Conditions or drugs that prohibit treatment use."
-    MANIFESTS_AS = "Clinical signs, symptoms, or phenotypic abnormalities."
-    DEMOGRAPHICS = "Patient populations, demographics, or age group."
 
-    @classmethod
-    def _missing_(cls, value):
+class KnowledgeGraphIngestor:
+    """Engine that handles the transition from text chunks to graph database."""
+    def __init__(self, uri: str, auth: tuple[str, str], database: str, llm_client: ChatClient, llm_model: str) -> None:
+        self.driver = GraphDatabase.driver(uri, auth=auth, database=database)
+        self.database = database
+        self._llm_client = llm_client
+        self._llm_model = llm_model
+
+
+    def close(self) -> None:
+        self.driver.close()
+
+
+    def configure_database(self) -> None:
+        """Initialize schema with constraints."""
+
+        constraints = [
+            "CREATE CONSTRAINT chunk_id IF NOT EXISTS FOR (c:Chunk) REQUIRE c.id IS UNIQUE",
+            "CREATE CONSTRAINT doc_name IF NOT EXISTS FOR (d:Document) REQUIRE d.name IS UNIQUE",
+            "CREATE CONSTRAINT entity_name IF NOT EXISTS FOR (e:Entity) REQUIRE e.name IS UNIQUE"
+        ]
+        with self.driver.session(database=self.database) as session:
+            for query in constraints:
+                session.run(query)
+            logging.info("Database constraints verified.")
+
+
+    def ingest_chunks(self, chunks: list[dict[str, Any]]) -> None:
         """
-        Redirects Pydantic to look for the Enum name if the value is not found.
+        Ingest a batch of text chunks and link them to their parent documents.
+
+        Args:
+            chunks: List of dictionaries representing processed document segments.
         """
-        if isinstance(value, str):
-            for member in cls:
-                # Check if 'INDICATED_FOR' == 'INDICATED_FOR'
-                if member.name == value.upper().strip():
-                    return member
-        return None
+
+        if not chunks:
+            print("Warning: No chunks to ingest.")
+            return
+
+        query = """
+        UNWIND $rows AS row
+        WITH row WHERE row.source IS NOT NULL
+        MERGE (d:Document {name: row.source})
+        MERGE (c:Chunk {id: row.id})
+        SET c.text = row.data,
+            c.hierarchy = row.hierarchy
+        MERGE (c)-[:PART_OF]->(d)
+        """
+        with self.driver.session(database=self.database) as session:
+            session.execute_write(lambda tx: tx.run(query, rows=chunks))
 
 
-class Triplet(BaseModel):
-    """
-    Triplet of [Entity X, Predicate, Entity Y].
-    Example: ["Lisinopril", "FOLLOW_UP", "Kidney function test in 2 weeks"].
-    """
-    subject_entity: str = Field(description="Source entity.")
-    predicate: MedicalPredicate = Field(description="Relationship from source entity to target entity.")
-    object_entity: str = Field(description="Target entity.")
+    def ingest_triplets(self, triplets: list[dict[str, Any]]) -> None:
+        """
+        Ingest a batch of semantic triplets using APOC for dynamic relationship types.
 
+        Args:
+            triplets: List of dictionaries of type [{'subject': 'Entity A', 'predicate': 'Predicate', 'object': 'Entity B'}, ...].
+        """
 
-class TripletExtraction(BaseModel):
-    """
-    Collection of all triplets.
-    """
-    triplets: list[Triplet]
+        if not triplets:
+            print("Warning: No triplets to ingest.")
+            return
 
-
-class IngestionEngine:
-    """
-    Engine that handles the transition from text to graph triplets.
-    """
-    def __init__(self, client, model) -> None:
-        self._client = client
-        self._model = model
+        query = """
+        UNWIND $rows AS row
+        MERGE (s:Entity {name: row.subject})
+        MERGE (o:Entity {name: row.object})
+        WITH s, o, row
+        CALL apoc.merge.relationship(s, row.predicate, {}, {}, o, {}) YIELD rel
+        RETURN count(rel)
+        """
+        with self.driver.session(database=self.database) as session:
+            session.execute_write(lambda tx: tx.run(query, rows=triplets))
 
 
     def _llm_call(self, system_prompt: str, user_content: str):
@@ -63,8 +95,8 @@ class IngestionEngine:
         Helper to handle API calls with JSON formatting.
         """
         try:
-            response = self._client.chat.complete(
-                model=self._model,
+            response = self._llm_client.chat.complete(
+                model=self._llm_model,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_content}
@@ -233,9 +265,7 @@ class IngestionEngine:
         3. If no relationships are found, return {{"triplets": []}}.
         """
 
-        # Call LLM
         raw_json = self._llm_call(system_prompt, user_content)
-
         if not raw_json:
             return []
 
@@ -277,34 +307,8 @@ class IngestionEngine:
                 else:
                     print(f"DEBUG: Dropping hallucinated entity in triplet: {triplet}")
 
-            self.log_triplets(triplets=final_triplets)
             return final_triplets
 
         except Exception as e:
             print(f"Validation Error in Triplets: {e}")
             return []
-
-
-
-    def log_triplets(self, triplets: list[dict]) -> None:
-        """
-        Export the triplets to a CSV file.
-        """
-        if not triplets:
-            print("Warning: No triplets to log.")
-            return
-
-        path_to_results = "logs"
-        os.makedirs(path_to_results, exist_ok=True)
-
-        filename = "triplets.csv"
-
-        filepath = os.path.join(path_to_results, filename)
-        csv_headers = ["subject", "predicate", "object"]
-
-        with open(filepath, "w", newline="", encoding="utf-8") as fid:
-            csv_writer = csv.DictWriter(fid, fieldnames=csv_headers)
-            csv_writer.writeheader()
-            csv_writer.writerows(triplets)
-
-        print(f"Successfully logged {len(triplets)} triplets to {filepath}.")

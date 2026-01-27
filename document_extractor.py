@@ -1,6 +1,6 @@
 import os
 import re
-import uuid
+import hashlib
 import pymupdf4llm
 
 
@@ -185,6 +185,13 @@ class DocumentExtractor:
         return chunks
 
 
+    def _generate_deterministic_chunk_id(self, text: str, source: str) -> str:
+        """
+        Generate a deterministic ID based on chunk content and origin document filename.
+        """
+        return hashlib.sha256(f"{source}{text}".encode()).hexdigest()
+
+
     def process_pdf(self, pdf_path: str, pdf_name: str, hierarchy: str, priority: float) -> list[dict]:
         """
         Orchestrate the extraction and normalization of PDF content into database-ready chunks.
@@ -213,7 +220,7 @@ class DocumentExtractor:
         processed_data = []
         for chunk in chunks:
             processed_data.append({
-                "id": str(uuid.uuid4()),
+                "id": self._generate_deterministic_chunk_id(text=chunk, source=pdf_name),
                 "source": pdf_name,
                 "hierarchy": hierarchy,
                 "priority": priority,
@@ -221,26 +228,3 @@ class DocumentExtractor:
             })
 
         return processed_data
-
-
-    def log_chunks(self, processed_data: list[dict]) -> None:
-        """
-        Export the chunks to a text file for visual inspection.
-        """
-
-        if not processed_data:
-            return
-
-        path_to_results = "logs"
-        os.makedirs(path_to_results, exist_ok=True)
-
-        source_name = processed_data[0].get("source", "unknown_source")
-        source_name_clean = "".join([c for c in source_name if c.isalnum() or c in (' ', '.', '_')]).rstrip()
-        filepath = os.path.join(path_to_results, f"{source_name_clean}.txt")
-
-        with open(filepath, "w", newline="", encoding="utf-8") as fid:
-            for chunk_id, chunk_data in enumerate(processed_data):
-                fid.write(f"Chunk index: {chunk_id}\n")
-                for key, val in chunk_data.items():
-                    fid.write(f"[{key}]: {val}\n")
-                fid.write("-"*64 + "\n")
