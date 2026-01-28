@@ -158,6 +158,36 @@ class KnowledgeGraphIngestor:
         logging.info(f"Successfully ingested {len(triplets)} triplets.")
 
 
+    def ingest_canonical_entities(self, canonical_entities: list[dict[str, Any]]) -> None:
+        """
+        Ingest the canonical entities.
+
+        Args:
+            canonical_entities: List of canonical entity dictionaries, for instance [{"name": "Hypertension", "type": "Disease"}, ...]
+        """
+        if not canonical_entities:
+            logging.warning("Warning: No canonical entities to ingest.")
+            return
+
+        query = """
+        UNWIND $rows AS row
+        MERGE (e:Entity {name: row.name})
+        ON CREATE SET
+            e.type = row.type,
+            e.is_canonical = true,
+            e.created_at = timestamp()
+        ON MATCH SET
+            e.type = row.type,
+            e.is_canonical = true,
+            e.last_updated = timestamp()
+        """
+
+        with self.driver.session(database=self.database) as session:
+            session.execute_write(lambda tx: tx.run(query, rows=canonical_entities))
+
+        logging.info(f"Successfully ingested {len(canonical_entities)} canonical entities.")
+
+
     def _llm_call(self, system_prompt: str, user_content: str):
         """
         Helper to handle API calls with JSON formatting.

@@ -81,11 +81,15 @@ if __name__ == "__main__":
                 registry.update_canonical_entities(new_entities)
 
         # Log canonical entities to CSV for visual inspection
-        log_canonical_entities(entities=registry.canonical_entity_store, filename="canonical_entities.csv")
+        log_canonical_entities(entities=registry.canonical_entity_store)
+
+        # Ingest canonical entities in Neo4j graph database
+        ingestor.ingest_canonical_entities(canonical_entities=registry.canonical_entity_store)
 
         # Log aliases to JSON for visual inspection
         log_aliases(alias_lookup_map=registry.alias_lookup_map)
 
+        # Ingest aliases in Neo4j graph database
         ingestor.ingest_aliases(alias_lookup_map=registry.alias_lookup_map)
 
 
@@ -113,4 +117,5 @@ if __name__ == "__main__":
     unique_triplets_to_log = [{"subject": s, "predicate": p, "object": o} for s, p, o in unique_triplets]
     log_triplets(triplets=unique_triplets_to_log, filename="triplets.csv")
 
+    # Ingest triplets in Neo4j graph database
     ingestor.ingest_triplets(triplets=unique_triplets_to_log)

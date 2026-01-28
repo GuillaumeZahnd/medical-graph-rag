@@ -35,7 +35,7 @@ def log_triplets(triplets: list[dict], filename: str = "triplets.csv") -> None:
         print(f"❌ Error logging triplets: {e}")
 
 
-def log_canonical_entities(entities: list[dict], filename: str="canonical_entities.csv") -> None:
+def log_canonical_entities(entities: list[dict]) -> None:
     """
     Export the canonical entities metadata to a CSV file.
 
@@ -59,6 +59,7 @@ def log_canonical_entities(entities: list[dict], filename: str="canonical_entiti
     if "name" in sorted_keys:
         sorted_keys.insert(0, sorted_keys.pop(sorted_keys.index("name")))
 
+    filename = "canonical_entities.csv"
     filepath = log_dir / filename
 
     try:
